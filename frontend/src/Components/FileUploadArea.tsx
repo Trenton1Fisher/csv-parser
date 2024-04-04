@@ -8,10 +8,13 @@ const FileUploadArea: Component = () => {
     show: false,
     msg: '',
   })
+  const [loading, setLoading] = createSignal(false)
+  const [showOutputFile, setShowOutputFile] = createSignal(false)
   const [fileMutateOptions, setFileMutateOptions] = createSignal({
     action: 1,
     valueType: 1,
     index: 1,
+    searchValue: '',
   })
 
   function handleFileChange(event: Event) {
@@ -50,8 +53,35 @@ const FileUploadArea: Component = () => {
     setShowForm(true)
   }
 
-  function handleFormSubmit() {
-    return
+  async function handleFormSubmit() {
+    setLoading(true)
+    setShowForm(false)
+    if (!file()) {
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('file', file()!)
+    formData.append('action', fileMutateOptions().action.toString())
+    formData.append('valueType', fileMutateOptions().valueType.toString())
+    formData.append('index', fileMutateOptions().index.toString())
+    formData.append('searchValue', fileMutateOptions().searchValue)
+
+    try {
+      const res = await fetch('http://localhost:8080/', {
+        method: 'POST',
+        body: formData,
+      })
+      const tempFile = await res.blob()
+      setFile(tempFile as File)
+      setShowOutputFile(true)
+      setLoading(false)
+    } catch (error) {
+      setFileUploadError({
+        show: true,
+        msg: 'Unknown Error, Refresh and try again',
+      })
+    }
   }
 
   return (
@@ -62,7 +92,7 @@ const FileUploadArea: Component = () => {
             <h2 class="text-green-600 text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
               Upload your CSV. Let's get started.
             </h2>
-            <div class="mt-2 flex items-center mx-auto max-w-[400px] space-y-2">
+            <div class="mt-2 flex items-center justify-center">
               <input
                 id="file"
                 placeholder="Choose a file"
@@ -72,7 +102,8 @@ const FileUploadArea: Component = () => {
               />
               <button
                 onClick={fileTypeVerifier}
-                class="inline-flex bg-white w-1/3 text-black rounded-lg items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                disabled={loading()}
+                class=" bg-white ml-4 text-black w-1/2 rounded-l rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 "
               >
                 Submit
               </button>
@@ -81,6 +112,15 @@ const FileUploadArea: Component = () => {
               <p class="absolute top-0 bg-red-500 p-2 font-bold text-center">
                 {fileUploadError().msg}
               </p>
+            </Show>
+            <Show when={showOutputFile()}>
+              <a
+                href={URL.createObjectURL(file()!)}
+                download="return.csv"
+                class="absolute top-0 bg-blue-500 p-2 font-bold text-center rounded-lg"
+              >
+                Download Csv
+              </a>
             </Show>
           </div>
         </div>

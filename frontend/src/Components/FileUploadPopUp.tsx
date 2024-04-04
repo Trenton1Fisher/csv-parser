@@ -6,11 +6,13 @@ interface PropsType {
     action: number
     valueType: number
     index: number
+    searchValue: string
   }>
   setFileMutateOptions: Setter<{
     action: number
     valueType: number
     index: number
+    searchValue: string
   }>
   handleFormSubmit(): void
 }
@@ -21,6 +23,7 @@ const FileUploadPopUp: Component<PropsType> = props => {
       action: 1,
       valueType: 1,
       index: 1,
+      searchValue: '',
     })
     props.setShowForm(false)
   }
@@ -104,6 +107,24 @@ const FileUploadPopUp: Component<PropsType> = props => {
                       }))
                     }
                   />
+                  <Show when={props.fileMutateOptions().action == 2}>
+                    <label for="action-select" class="mt-2">
+                      What value are you searching for
+                    </label>
+                    <p class="text-sm mb-1">
+                      Ex. id,birthday,name (id = 1512374)
+                    </p>
+                    <input
+                      type="text"
+                      class="bg-white w-1/2 p-1 rounded-lg text-black md:w-1/3"
+                      onChange={e =>
+                        props.setFileMutateOptions(prev => ({
+                          ...prev,
+                          searchValue: e.target.value,
+                        }))
+                      }
+                    />
+                  </Show>
                 </Show>
               </form>
             </div>
