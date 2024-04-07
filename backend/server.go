@@ -54,7 +54,7 @@ func main() {
   
     switch action {
     case 1: 
-      SortCSV()
+      SortCSV(file, &w, valueIndex, valueType)
     case 2: 
       SearchCSV(file, &w, valueIndex, searchValue)
     case 3: 
