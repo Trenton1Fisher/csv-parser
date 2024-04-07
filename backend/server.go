@@ -59,10 +59,10 @@ func main() {
       SearchCSV(file, &w, valueIndex, searchValue)
     case 3: 
       DeleteDuplicatesFromCSV(file, &w)
+
     }
 
   })
-
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

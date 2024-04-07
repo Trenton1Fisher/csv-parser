@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/sha256"
 	"encoding/csv"
 	"fmt"
 	"mime/multipart"
@@ -53,10 +54,25 @@ func DeleteDuplicatesFromCSV(file multipart.File, w *http.ResponseWriter) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
+    recordKey := make(map[string]bool)
+    uniqeRecords := make([]string, 0)
+
+    hash := sha256.New()
 
 	for scanner.Scan() {
 		currLine := scanner.Text()
-		fmt.Println("Read Line: ", currLine)
+        currLineConcat := strings.ReplaceAll(currLine, ",", "")
+        currLineNoWhiteSpace := strings.TrimSpace(currLineConcat)
+
+        hash.Write([]byte(currLineNoWhiteSpace))
+        uniqueKey := fmt.Sprintf("%x", hash.Sum(nil))
+
+        if _, exists := recordKey[uniqueKey]; !exists {
+            recordKey[uniqueKey] = true
+            uniqeRecords = append(uniqeRecords, currLine)
+        }
+
+        hash.Reset()
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -64,10 +80,18 @@ func DeleteDuplicatesFromCSV(file multipart.File, w *http.ResponseWriter) {
         return
     }
 
-	(*w).Header().Set("Content Type", "application/json")
-    fmt.Fprintf(*w, `{"message": "Hello from the server calling the delete duplicates function"}`)
+    (*w).Header().Set("Content-Type", "text/csv")
+    (*w).Header().Set("Content-Disposition", "attachment; filename=return.csv")
 
+    writer := csv.NewWriter(*w)
+    defer writer.Flush()
 
-	//Pretty sure this is redundant but just in case, shouldn't hurt anything
-	file.Close()
+    for _, row := range uniqeRecords {
+        err := writer.Write(strings.Split(row, ","))
+        if err != nil {
+            fmt.Println(err)
+            return
+        }
+    }
+
 }
