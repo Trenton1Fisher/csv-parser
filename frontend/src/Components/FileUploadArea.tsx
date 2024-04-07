@@ -68,7 +68,7 @@ const FileUploadArea: Component = () => {
     formData.append('searchValue', fileMutateOptions().searchValue)
 
     try {
-      const res = await fetch('http://localhost:8080/', {
+      const res = await fetch('api.csv.trentonfisher.xyz', {
         method: 'POST',
         body: formData,
       })
