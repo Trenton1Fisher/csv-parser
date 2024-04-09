@@ -70,7 +70,7 @@ const FileUploadArea: Component = () => {
     formData.append('searchValue', fileMutateOptions().searchValue)
 
     try {
-      const res = await fetch(import.meta.env.VITE_PROD_API_URL, {
+      const res = await fetch(process.env.VITE_PROD_API_URL, {
         method: 'POST',
         body: formData,
       })
