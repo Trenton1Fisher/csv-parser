@@ -71,7 +71,7 @@ const FileUploadArea: Component = () => {
     console.log(import.meta.env.VITE_PROD_API_URL)
 
     try {
-      const res = await fetch(import.meta.env.VITE_PROD_API_URL, {
+      const res = await fetch("https://api.csv.trentonfisher.xyz", {
         method: 'POST',
         body: formData,
       })
