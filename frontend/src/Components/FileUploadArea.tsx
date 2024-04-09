@@ -68,16 +68,21 @@ const FileUploadArea: Component = () => {
     formData.append('valueType', fileMutateOptions().valueType.toString())
     formData.append('index', fileMutateOptions().index.toString())
     formData.append('searchValue', fileMutateOptions().searchValue)
-    console.log(import.meta.env.VITE_PROD_API_URL)
 
     try {
-      const res = await fetch("https://api.csv.trentonfisher.xyz", {
+      const res = await fetch(import.meta.env.VITE_PROD_API_URL, {
         method: 'POST',
         body: formData,
       })
       const tempFile = await res.blob()
       setOutputFile(tempFile as File)
       setShowOutputFile(true)
+      setFileMutateOptions({
+        action: 1,
+        valueType: 1,
+        index: 1,
+        searchValue: '',
+      })
       setLoading(false)
     } catch (error) {
       setFileUploadError({
