@@ -3,6 +3,7 @@ import FileUploadPopUp from './FileUploadPopUp'
 
 const FileUploadArea: Component = () => {
   const [file, setFile] = createSignal<File | null>(null)
+  const [outputFile, setOutputFile] = createSignal<File | null>(null)
   const [showForm, setShowForm] = createSignal(false)
   const [fileUploadError, setFileUploadError] = createSignal({
     show: false,
@@ -50,6 +51,7 @@ const FileUploadArea: Component = () => {
       show: false,
       msg: '',
     })
+    setShowOutputFile(false)
     setShowForm(true)
   }
 
@@ -68,12 +70,12 @@ const FileUploadArea: Component = () => {
     formData.append('searchValue', fileMutateOptions().searchValue)
 
     try {
-      const res = await fetch('https://api.csv.trentonfisher.xyz', {
+      const res = await fetch(import.meta.env.VITE_PROD_API_URL, {
         method: 'POST',
         body: formData,
       })
       const tempFile = await res.blob()
-      setFile(tempFile as File)
+      setOutputFile(tempFile as File)
       setShowOutputFile(true)
       setLoading(false)
     } catch (error) {
@@ -115,7 +117,7 @@ const FileUploadArea: Component = () => {
             </Show>
             <Show when={showOutputFile()}>
               <a
-                href={URL.createObjectURL(file()!)}
+                href={URL.createObjectURL(outputFile()!)}
                 download="return.csv"
                 class="absolute top-0 bg-blue-500 p-2 font-bold text-center rounded-lg"
               >
